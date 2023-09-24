@@ -1,0 +1,104 @@
+public function week() {
+    Carbon::setLocale('ja');
+    $currentDateTime = now();
+    $user = Auth::user();
+
+    if (!$user) {
+        return response()->json(['error' => 'ユーザーが認証されていません']);
+    }
+
+    $matchingCategories = $user->categories()->whereDate('created_at', '=', $currentDateTime->toDateString())->get();
+
+    if ($matchingCategories->isEmpty()) {
+        return response()->json(['error' => '該当するカテゴリーが見つかりません']);
+    }
+
+    $categoryTotals = [];
+    $totalTime = 0;
+
+    foreach ($matchingCategories as $category) {
+        $categoryName = $category->name;
+        $categoryTime = $category->time;
+
+        if (!isset($categoryTotals[$categoryName])) {
+            $categoryTotals[$categoryName] = 0;
+        }
+
+        $categoryTotals[$categoryName] += $categoryTime;
+        $totalTime += $categoryTime;
+    }
+
+    // Record モデルを使用してデータを保存
+    foreach ($categoryTotals as $categoryName => $categoryTotal) {
+        $record = new Record();
+        $record->category_name = $categoryName; // カテゴリー名を保存するカラムに合わせて変更
+        $record->total_time = $categoryTotal; // 合計時間を保存するカラムに合わせて変更
+        $record->save();
+    }
+
+    return view('posts.week', compact('categoryTotals', 'totalTime'));
+}
+
+
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+class AddColumnsToRecordsTable extends Migration
+{
+    public function up()
+    {
+        Schema::table('records', function (Blueprint $table) {
+            $table->json('category_totals')->nullable();
+            $table->integer('total_time')->nullable();
+        });
+    }
+
+    public function down()
+    {
+        Schema::table('records', function (Blueprint $table) {
+            $table->dropColumn('category_totals');
+            $table->dropColumn('total_time');
+        });
+    }
+}
+
+
+ @php
+        $latestRecord = $user->records->sortByDesc('created_at')->first();
+    @endphp
+    
+    if ($user->profile) {
+            $profile = $user->profile;
+        } else {
+            $profile = new Profile();
+            $profile = $user->profile;
+        }
+        
+       public function postown(Record $record){
+            $user=Auth::user();
+            if(!$user){
+                return response()->json(['erros'=>'ユーザーが認証されていません']);
+            }
+            $matchingCategories = $user->categories();
+            if ($matchingCategories->isEmpty()) {
+                return response()->json(['error' => '該当するカテゴリーが見つかりません']);
+            }
+            $categoryTotal = [];
+            $totalTime = 0;
+            foreach ($matchingCategories as $category) {
+                $categoryName = $category->name;
+                $categoryTime = $category->workTime;     
+
+                if (!isset($categoryTotal[$categoryName])) {
+                    $categoryTotal[$categoryName] = 0;
+                }
+
+                $categoryTotal[$categoryName] += $categoryTime;
+                $totalTime += $categoryTime;
+                
+            }
+
+        return view('posts.post_own',compact('categoryTotal', 'totalTime'));    
+    }

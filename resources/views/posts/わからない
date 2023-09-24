@@ -1,0 +1,5 @@
+provider と　リクエストの関係
+$category = new Category();とCategory $categoryの違い
+app サービスコンテナ　$view->with('categoryTotals', $categoryTotals)
+                 ->with('totalTime', $totalTime);
+session
