@@ -10,10 +10,10 @@ use Illuminate\Database\Eloquent\Model;
 class Category extends Model
 {
     use HasFactory;
-    use softDeletes;
-     public function record()
+    use SoftDeletes;
+    public function record()
 {
-     return $this->BelongsTo(Category::class);
+     return $this->BelongsTo(Record::class);
 }
   public function user()
 {

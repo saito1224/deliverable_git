@@ -16,16 +16,13 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
-});
 
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
-Route::middleware(['auth'])->group(function () {
+
+
+Route::get('/dashboard', function () {return view('dashboard');})->middleware(['auth', 'verified'])->name('dashboard');
+Route::controller(PostController::class)->middleware(['auth'])->group(function () {
     Route::get('/delete1', [PostController::class, 'delete1'])->name('delete1');
-    Route::get('/front', [PostController::class, 'front'])->name('front');
+    Route::get('/', [PostController::class, 'front'])->name('front');
     Route::get('/postothers', [PostController::class, 'postothers'])->name('postothers');
     Route::get('/postown', [PostController::class, 'postown'])->name('postown');
     Route::get('/posted',[PostController::class,'posted'])->name('posted');
@@ -38,7 +35,9 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/storerecord', [PostController::class, 'storerecord'])->name('storerecord');
     Route::post('/storetoday', [PostController::class, 'storetoday'])->name('storetoday');
     Route::get('/week', [PostController::class, 'week'])->name('week');
-    Route::delete('/delete/{id}', [PostController::class, 'delete'])->name('delete');
+    Route::delete('/delete/{category}', [PostController::class, 'delete'])->name('delete');
+    
+    Route::get('/example',[PostController::class,'example']);
 });
 
 Route::middleware('auth')->group(function () {

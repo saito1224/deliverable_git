@@ -6,8 +6,11 @@
         <title>Posts</title>
         <!-- Fonts -->
         <link href="https://fonts.googleapis.com/css?family=Nunito:200,600" rel="stylesheet">
+        @extends('layouts.common')
+
     </head>
     <body>
+        @section('content')
           <form action='/storetoday' method="post">
             @csrf
             @if(isset($categoryTotal))
@@ -24,8 +27,10 @@
                 </div>
                     <input type="submit" value="記録確定"/> 
           </form>
+          <p class="comment__error" style="color:red">{{ $errors->first('comment') }}</p>
         <div class="footer">        
             <a href="/">戻る</a>
         </div>
+        @endsection
     </body>
 </html>

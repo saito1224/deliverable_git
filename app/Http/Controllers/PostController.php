@@ -8,53 +8,61 @@ use App\Models\Record;
 use App\models\User;
 use \Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\Auth;
+use App\Http\Requests\PostRequest; 
+use App\Http\Requests\TodayRequest; 
 
 
 
 
 class PostController extends Controller
-{
-    public function delete($id){
+{   
+    
+    public function login(){return view('posts.login');}
+    
+    public function delete(Category $category){
         $category->delete();
-        return redirect("/record_set");
+        return redirect("/recordset");
         
     }
     public function delete1(Category $category){
         $user=Auth::user();
-        $category=$user->category;
-        return view('posts.delete1')->with('categories',$category)->with('user',$user);
+        $categories=$user->categories()->orderBy('created_at','desc')->get();
+        return view('posts.delete1')->with('categories',$categories)->with('user',$user);
     }
+    
     
     public function front(){
         return view('posts.front');
     }
     
      public function postothers(Record $record , Category $category){
-        $allUsers = User::with('records')->get();
+        $allUsers = User::all();
         $latestTotal = [];
         $latestTime = 0;
-        $comment = '';
+        $comments = array();
 
-        foreach ($allUsers as $user) {
-            $latestRecord = $user->records()->orderByDesc('created_at')->first();
-
+        foreach ($allUsers as $allUser) {
+        $latestRecord = $allUser->records()->orderByDesc('created_at')->first();
+        $comments[] = $latestRecord->comment;
         if ($latestRecord) {
-            $decodedLatests = json_decode($latestRecord->category_total, true);
-        
+        $decodedLatests = json_decode($latestRecord->category_total, true);
+
         foreach ($decodedLatests as $categoryName => $categoryTime) {
-            if (array_key_exists($categoryName, $decodedLatests)) {
+            if (array_key_exists($categoryName, $latestTotal)) {
+                $latestTotal[$categoryName] += (int)$categoryTime;
             } else {
-        $latestTotal[$categoryName] = $categoryTime;
-    }
-                $latestTime += (int)$categoryTime;
-                $comment = $latestRecord->comment;
+                $latestTotal[$categoryName] = (int)$categoryTime;
             }
+            $latestTime += (int)$categoryTime;
+            
         }
     }
-
+        }
         
-        return view('posts.post_others',compact('latestTotal','latestTime','comment'));
+        return view('posts.post_others',compact('latestTotal','latestTime','comments'));
     }
     
     public function postown(Record $record){
@@ -95,22 +103,31 @@ class PostController extends Controller
         return view('posts.profile_create');
     }
     
-    public function profilestore(Request $request,Profile $profile){
-        $user=Auth::user();
-        $profile = new Profile();
+    
+   public function profilestore(Request $request, Profile $profile) {
+    $user = Auth::user();
+    $name = $request->input('name');
+    $gender = $request->input('gender');
+    $old = $request->input('old');
+    $comment = $request->input('comment');
+    if ($profile !== null) {
+        $profile = $user -> profile;
+        //$profile->user_id = $user->id;
+    } else {
+        $Profile = new Profile();
         $profile->user_id = $user->id;
-        $name=$request->input('name');
-        $gender=$request->input('gender');
-        $old=$request->input('old');
-        $comment=$request->input('comment');
-        $user->name=$name;
-        $profile->gender=$gender;
-        $profile->old=$old;
-        $profile->comment=$comment;
-        $user->save();
+    }    
+        $profile->gender = $gender;
+        $profile->old = $old;
+        $profile->comment = $comment;
         $profile->save();
-        return redirect('/profile1');
-    }
+        $user->name = $name;
+        $user->save();
+
+    return redirect('/profile1');
+}
+
+
 
     public function profile1(Profile $profile){
         $user = Auth::user();
@@ -120,7 +137,7 @@ class PostController extends Controller
     public function recordset(Category $category){
         return view('posts.record_set')->with(['category'=>$category]);
     }
-    public function storerecord(Request $request, Category $category){
+    public function storerecord( Category $category,PostRequest $request){
         $user_id = auth()->user()->id;
         $category->user_id = $user_id; 
         $name=$request->input('name');
@@ -131,7 +148,7 @@ class PostController extends Controller
        return redirect('/week');
     }
     
-    public function storetoday(Request $request,Record $record){
+    public function storetoday(TodayRequest $request,Record $record){
             $user=Auth::user();
             if (!$user) {
                    return response()->json(['error' => 'ユーザーが認証されていません']);
@@ -205,65 +222,47 @@ class PostController extends Controller
         return view('posts.today',compact('categoryTotal', 'totalTime'));    
     }
 
-    public function week(){
-            $user=Auth::user();
-            Carbon::setLocale('ja');
-            $currentDateTime = now();
-            if(!$user){
-                return response()->json(['erros'=>'ユーザーが認証されていません']);
-            }
-            $matchingCategories = $user->categories()->whereDate('created_at', '=', $currentDateTime->toDateString())->get();
-            if ($matchingCategories->isEmpty()) {
-                return response()->json(['error' => '該当するカテゴリーが見つかりません']);
-            }
-            $categoryTotal = [];
-            $totalTime = 0;
-            foreach ($matchingCategories as $category) {
-                $categoryName = $category->name;
-                $categoryTime = $category->workTime;     
+    public function week()
+{
+    $user = Auth::user();
+    Carbon::setLocale('ja');
+    $currentDateTime = Carbon::now(); // Carbonを使用して現在の日付と時刻を取得
 
-                if (!isset($categoryTotal[$categoryName])) {
-                    $categoryTotal[$categoryName] = 0;
-                }
-
-                $categoryTotal[$categoryName] += $categoryTime;
-                $totalTime += $categoryTime;
-                
-            }
-            
-           // session(['categoryTotal'=>$categoryTotal,'totalTime'=>$totalTime]);
-            /*$view->with('categoryTotal', $categoryTotal)
-                 ->with('totalTime', $totalTime);
-                 */
-        //$categoryTotal = session('categoryTotal');
-        //$totalTime = session('totalTime');
-        //dd($categoryTotal, $totalTime);
-
-        return view('posts.week',compact('categoryTotal', 'totalTime'));    
+    if (!$user) {
+        return response()->json(['errors' => 'User is not authenticated']);
     }
+
+    // レコードを特定の日付でフィルタリングするためにCarbonを使用
+    $matchingCategories = $user->categories()
+        ->whereDate('created_at', '=', $currentDateTime->toDateString())
+        ->get();
+
+    $records = $user->records()->orderBy('created_at', 'desc')->get();
+
+    if ($matchingCategories->isEmpty()) {
+        return response()->json(['error' => 'No matching category found']);
+    }
+
+    $categoryTotal = [];
+    $totalTime = 0;
+
+    foreach ($matchingCategories as $category) {
+        $categoryName = $category->name;
+        $categoryTime = $category->workTime;
+
+        if (!isset($categoryTotal[$categoryName])) {
+            $categoryTotal[$categoryName] = 0;
+        }
+
+        $categoryTotal[$categoryName] += $categoryTime;
+        $totalTime += $categoryTime;
+    }
+   // dd($records);
+    return view('posts.week', compact('categoryTotal', 'totalTime', 'records'));
 }
 
-/*Carbon::setLocale('ja');
-        $currentDateTime=now();
-        $user=Auth::user();
-        if (!$user) {
-            return response()->json(['error' => 'ユーザーが認証されていません']);
-                }
-        $matchingCategories=$user->categories()->whereDate('created_at','=',$currentDateTime->toDateString())->get();
-        if ($matchingCategories->isEmpty()) {
-            return response()->json(['error' => '該当するカテゴリーが見つかりません']);
-                }
-        $categoryTotals=[];
-        $totalTime=0;
-        foreach($matchingCategories as $category){
-            $categoryName=$category->name;
-            $categoryTime=$category->time;     
-            if(!isset($categoryTotals[$categoryName])){
-                $categoryTotals[$categoryName]=0;
-            }
-            $categoryTotals[$categoryName]+=$categoryTime;
-            $totalTime+=$categoryTime;
-        }
-        return view('posts.week',compact('categoryTotals','totalTime'));
-        
-       */
+public function example(){
+    return view ('posts.example');
+}
+
+}

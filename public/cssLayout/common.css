@@ -1,0 +1,24 @@
+/* ナビゲーションメニューのリンクテキストの色を変更 */
+.header a {
+    color:#195959; /* リンクのテキストを白色に設定 */ 
+    padding: 10px; 
+    
+    }
+
+/* ナビゲーションメニューのリンクテキストにホバー時の色を設定 */
+.header a:hover {
+    color:#00ff00; /* リンクのテキストを緑色に設定（ホバー時） */
+    
+}
+.header{
+    padding: 10px; /* ボーダーとヘッダーの間に余白を設定（任意） */
+    top: 0;
+     background-color: #fff;
+    
+}
+.custom-background{
+    background-color: #d9dad7; /* 背景色を指定 */
+}
+.link{
+     color:#195959; /* リンクのテキストを白色に設定 */ 
+}

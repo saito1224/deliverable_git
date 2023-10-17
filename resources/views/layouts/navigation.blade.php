@@ -16,7 +16,13 @@
                         {{ __('Dashboard') }}
                     </x-nav-link>
                     <x-nav-link :href="route('front')" :active="request()->routeIs('front')">
-                        {{ __('front') }}
+                        {{ __('トップ') }}
+                    </x-nav-link>
+                    <x-nav-link :href="route('profile1')" :active="request()->routeIs('profile1')">
+                        {{ __('プロフィール') }}
+                    </x-nav-link>
+                    <x-nav-link :href="route('recordset')" :active="request()->routeIs('precordset')">
+                        {{ __('記録する') }}
                     </x-nav-link>
                 </div>
             </div>

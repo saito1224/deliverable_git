@@ -6,9 +6,13 @@
         <title>Posts</title>
         <!-- Fonts -->
         <link href="https://fonts.googleapis.com/css?family=Nunito:200,600" rel="stylesheet">
+        @extends('layouts.common')
+
     </head>
     <body>
+        @section('content')
         <h1>投稿完了</h1>
-    　  <a href='/front'>トップへ戻る</a>
+    　  <a href="{{ route('front') }}">トップへ</a>
+        @endsection
     </body>
 </html>
