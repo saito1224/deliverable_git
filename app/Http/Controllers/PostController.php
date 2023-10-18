@@ -42,11 +42,11 @@ class PostController extends Controller
         $allUsers = User::all();
         $latestTotal = [];
         $latestTime = 0;
-        $comments = array();
+        $comments=[];
 
         foreach ($allUsers as $allUser) {
         $latestRecord = $allUser->records()->orderByDesc('created_at')->first();
-        $comments[] = $latestRecord->comment;
+        
         if ($latestRecord) {
         $decodedLatests = json_decode($latestRecord->category_total, true);
 
@@ -57,7 +57,7 @@ class PostController extends Controller
                 $latestTotal[$categoryName] = (int)$categoryTime;
             }
             $latestTime += (int)$categoryTime;
-            
+            $comments[$categoryName] = $latestRecord->comment;
         }
     }
         }
@@ -69,7 +69,9 @@ class PostController extends Controller
     $categoryTotal = [];
     $totalTime = 0;
     $user = Auth::user();
-    $matchingRecords = $user->records;
+    $comments = array();
+    $matchingRecords = $user->records()->orderByDesc('created_at')->get();
+    $categoryNameToIds = [];
     foreach ($matchingRecords as $matchingRecord) {
         $decodedCategory = json_decode($matchingRecord->category_total, true);
 
@@ -83,13 +85,12 @@ class PostController extends Controller
 
                 $categoryTotal[$categoryName] += $categoryTime;
                 $totalTime += $categoryTime;
-                $comment=$matchingRecord->comment;
-                
+                $categoryNameToIds[$categoryName] = $matchingRecord->comment;
             }
         }
     }
 
-    return view('posts.post_own', compact('categoryTotal', 'totalTime','comment'));
+    return view('posts.post_own', compact('categoryTotal', 'totalTime','categoryNameToIds'));
 }
     
     public function posted(){
@@ -127,12 +128,42 @@ class PostController extends Controller
     return redirect('/profile1');
 }
 
-
-
     public function profile1(Profile $profile){
         $user = Auth::user();
         $profile=$user->profile;
-        return view('posts.profile1', compact('user'))->with('profile',$profile);
+        
+    Carbon::setLocale('ja');
+    $currentDateTime = Carbon::now(); 
+
+    if (!$user) {
+        return response()->json(['errors' => 'User is not authenticated']);
+    }
+
+    $matchingCategories = $user->categories()
+        ->whereDate('created_at', '=', $currentDateTime->toDateString())
+        ->get();
+
+    $records = $user->records()->orderBy('created_at', 'desc')->get();
+
+    if ($matchingCategories->isEmpty()) {
+        return response()->json(['error' => 'No matching category found']);
+    }
+
+    $categoryTotal = [];
+    $totalTime = 0;
+
+    foreach ($matchingCategories as $category) {
+        $categoryName = $category->name;
+        $categoryTime = $category->workTime;
+
+        if (!isset($categoryTotal[$categoryName])) {
+            $categoryTotal[$categoryName] = 0;
+        }
+
+        $categoryTotal[$categoryName] += $categoryTime;
+        $totalTime += $categoryTime;
+    }
+        return view('posts.profile1', compact('user','records','categoryTotal','totalTime','profile'));
     }
     public function recordset(Category $category){
         return view('posts.record_set')->with(['category'=>$category]);
@@ -226,13 +257,12 @@ class PostController extends Controller
 {
     $user = Auth::user();
     Carbon::setLocale('ja');
-    $currentDateTime = Carbon::now(); // Carbonを使用して現在の日付と時刻を取得
+    $currentDateTime = Carbon::now(); 
 
     if (!$user) {
         return response()->json(['errors' => 'User is not authenticated']);
     }
 
-    // レコードを特定の日付でフィルタリングするためにCarbonを使用
     $matchingCategories = $user->categories()
         ->whereDate('created_at', '=', $currentDateTime->toDateString())
         ->get();

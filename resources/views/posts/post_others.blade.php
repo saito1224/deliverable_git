@@ -12,12 +12,18 @@
                 <div class='categorytotal'>
                     <p class='name'>カテゴリ名：{{$categoryName}}</p>
                     <p class='time'>時間：{{$categoryTime}}</p>
-                    <p class='comment'>コメント：{{$comments[$latestRecord]}}</p>
-                 </div>    
+                 </div>
+            @if(isset($comments[$categoryName]))
+                    @php
+                        $comment = $comments[$categoryName];
+                    @endphp
+                    <p class='comments'>コメント：{{$comment}}</p>
+                @endif
             @endforeach
             @else
                 <p class='noRecords'>記録がありません</p>
             @endif
+            <a href="{{ route('profile1') }}">戻る</a>
             @endsection
     </body>
 </html>

@@ -31,10 +31,10 @@ Route::controller(PostController::class)->middleware(['auth'])->group(function (
     Route::get('/profile1', [PostController::class, 'profile1'])->name('profile1');
     Route::get('/recordset', [PostController::class, 'recordset'])->name('recordset');
     Route::get('/today', [PostController::class, 'today'])->name('today');
+    Route::get('/week', [PostController::class, 'week'])->name('week');
     Route::post('/profilestore', [PostController::class, 'profilestore'])->name('profilestore');
     Route::post('/storerecord', [PostController::class, 'storerecord'])->name('storerecord');
     Route::post('/storetoday', [PostController::class, 'storetoday'])->name('storetoday');
-    Route::get('/week', [PostController::class, 'week'])->name('week');
     Route::delete('/delete/{category}', [PostController::class, 'delete'])->name('delete');
     
     Route::get('/example',[PostController::class,'example']);

@@ -15,8 +15,8 @@
        @if($user && $user->categories)
        @foreach($categories as $category)
             <div class='category'>
-                <p class="name">{{$category->name}}</p>
-                <p class="workTime">{{$category->workTime}}</p>
+                <p class="name">    カテゴリ名:   {{$category->name}}</p>
+                <p class="workTime">    時間:   {{$category->workTime}}</p>
                 <form action="/delete/{{$category->id}}" id="form_{{$category->id}}" method="post">
                     @csrf
                     @method('DELETE')
