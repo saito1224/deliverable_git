@@ -1,9 +1,11 @@
 
 DB_CONNECTION=pgsql
-DB_HOST=ec2-3-210-173-88.compute-1.amazonaws.com
-DB_DATABASE=d5d9blv88ffsq6
-DB_USERNAME=gwzcjrgpjwsdbe
-DB_PASSWORD=243be623dc492e97250bbae231842dd8188c51e66fe235a44671551e
+DB_HOST=ec2-44-206-204-65.compute-1.amazonaws.com
+DB_DATABASE=dc4km9ch7l5u13
+DB_USERNAME=adxxxahoyahdno
+DB_PASSWORD=cbfc4b915e6edb903fac39829debb9e8bdd1ca5e923b40b800a257687b1d7249
+
+postgres://adxxxahoyahdno:cbfc4b915e6edb903fac39829debb9e8bdd1ca5e923b40b800a257687b1d7249@ec2-44-206-204-65.compute-1.amazonaws.com:5432/dc4km9ch7l5u13
 
 
 
@@ -15,3 +17,4 @@ DB_USERNAME=dbuser
 DB_PASSWORD=123456789adgjmptw,
 
 mysql://dbuser:123456789adgjmptw,@127.0.0.1:3306/deliverable
+postgres://[ユーザ名]:[パスワード]@[ホスト]:5432/[DB名]
