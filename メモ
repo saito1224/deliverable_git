@@ -1,12 +1,12 @@
 
 DB_CONNECTION=pgsql
-DB_HOST=ec2-44-206-204-65.compute-1.amazonaws.com
-DB_DATABASE=dc4km9ch7l5u13
-DB_USERNAME=adxxxahoyahdno
-DB_PASSWORD=cbfc4b915e6edb903fac39829debb9e8bdd1ca5e923b40b800a257687b1d7249
+DB_PORT=5432
+DB_HOST=ec2-44-213-151-75.compute-1.amazonaws.com
+DB_DATABASE=dddht2s1bmv2ni
+DB_USERNAME=wjqkubkrxyayay
+DB_PASSWORD=c31d09e51bfe9f6244060a8a33a7f47d4fb3819273f6c6a1d37a6f191b6c7937
 
-postgres://adxxxahoyahdno:cbfc4b915e6edb903fac39829debb9e8bdd1ca5e923b40b800a257687b1d7249@ec2-44-206-204-65.compute-1.amazonaws.com:5432/dc4km9ch7l5u13
-
+postgres://wjqkubkrxyayay:c31d09e51bfe9f6244060a8a33a7f47d4fb3819273f6c6a1d37a6f191b6c7937@ec2-44-213-151-75.compute-1.amazonaws.com:5432/dddht2s1bmv2ni
 
 
 DB_CONNECTION=mysql
