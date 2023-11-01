@@ -1,66 +1,21 @@
-<x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">{{ __('Dashboard') }} </x-nav-link>
+postgres://jsfywuckujxasa:1827bcac733fc1ae6d745c45bb711290402ff44b1e7e9999307b4d53072f0d9a@ec2-34-202-53-101.compute-1.amazonaws.com:5432/d2m3keesbkd49l
 
 
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=deliverable
+DB_USERNAME=dbuser
+DB_PASSWORD=123456789adgjmptw,
 
 
-
-<!DOCTYPE HTML>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
-    <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <title>Posts</title>
-        <!-- Fonts -->
-        <link href="https://fonts.googleapis.com/css?family=Nunito:200,600" rel="stylesheet">
-    </head>
-    <body>
-        <h1>編集画面</h1>    
-        <form action="/profilestore" method="POST">
-            @csrf
-             @php
-                $user = Auth::user();
-             @endphp
-            <div class="name">
-                <h2>ユーザー名入力</h2>
-                <input type="text" name="name" placeholder="ユーザー名"  value={{"$user[name]"}} />
-            </div>
-            <div class="other">
-                <h3>性別入力</h3>
-                    <label>
-                        <input type="radio" name="gender" value="male"> 男性
-                    </label>
-                    <label>
-                        <input type="radio" name="gender" value="female"> 女性
-                    </label>
-                    <label>
-                        <input type="radio" name="gender" value="others">その他
-                    </label>
-                <input type="text" name="old" placeholder="年齢">
-                <input type="text" name="comment" placeholder="ひとこと">
-            </div>
-           　　　<input type="submit" value="編集確定">
-        </form>
-        <div class="footer">        
-            <a href="/">戻る</a>
-        </div>
-    </body>
-</html>
+DB_CONNECTION=pgsql
+DB_HOST=ec2-34-202-53-101.compute-1.amazonaws.com
+DB_PORT=5432
+DB_DATABASE=d2m3keesbkd49l
+DB_USERNAME=jsfywuckujxasa
+DB_PASSWORD=1827bcac733fc1ae6d745c45bb711290402ff44b1e7e9999307b4d53072f0d9a
 
 
-
-public function profilestore(Request $request,Profile $profile){
-        $user=Auth::user();
-        $profile = $user->profile;
-        $profile->user_id = $user->id;
-        $name=$request->input('name');
-        $gender=$request->input('gender');
-        $old=$request->input('old');
-        $comment=$request->input('comment');
-        $user->name=$name;
-        $profile->gender=$gender;
-        $profile->old=$old;
-        $profile->comment=$comment;
-        $user->save();
-        $profile->save();
-        return redirect('/profile1');
-    }
+postgres://[ユーザ名]:[パスワード]@[ホスト]:5432/[DB名]
+mysql://dbuser:123456789adgjmptw,@127.0.0.1:3306/deliverable
