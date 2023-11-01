@@ -18,7 +18,7 @@ use Illuminate\Support\Facades\Route;
 
 
 
-
+Route::get('/webtop', [PostController::class, 'webtop'])->name('webtop');
 Route::get('/dashboard', function () {return view('dashboard');})->middleware(['auth', 'verified'])->name('dashboard');
 Route::controller(PostController::class)->middleware(['auth'])->group(function () {
     Route::get('/delete1', [PostController::class, 'delete1'])->name('delete1');

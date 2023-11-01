@@ -20,7 +20,7 @@ use App\Http\Requests\TodayRequest;
 class PostController extends Controller
 {   
     
-    public function login(){return view('posts.login');}
+  
     
     public function delete(Category $category){
         $category->delete();
@@ -66,6 +66,7 @@ class PostController extends Controller
     }
     
     public function postown(Record $record){
+    $user = Auth::user();
     $categoryTotal = [];
     $totalTime = 0;
     $user = Auth::user();
@@ -86,11 +87,14 @@ class PostController extends Controller
                 $categoryTotal[$categoryName] += $categoryTime;
                 $totalTime += $categoryTime;
                 $categoryNameToIds[$categoryName] = $matchingRecord->comment;
+                
             }
+            
+            //var_export($categoryTotal);
         }
     }
-
-    return view('posts.post_own', compact('categoryTotal', 'totalTime','categoryNameToIds'));
+   
+    return view('posts.post_own', compact('categoryTotal', 'totalTime','categoryNameToIds','user'));
 }
     
     public function posted(){
@@ -111,13 +115,19 @@ class PostController extends Controller
     $gender = $request->input('gender');
     $old = $request->input('old');
     $comment = $request->input('comment');
-    if ($profile !== null) {
-        $profile = $user -> profile;
-        //$profile->user_id = $user->id;
-    } else {
-        $Profile = new Profile();
-        $profile->user_id = $user->id;
-    }    
+    
+    if (empty($name)) {
+        return back()->with('error', '氏名は必須項目です。');
+        }
+     if (empty($gender)) {
+        return back()->with('error', '性別は必須項目です。');
+        }
+     if (empty($old)) {
+        return back()->with('error', '年齢は必須項目です。');
+        }
+        
+     $profile = $user->profile ?? new Profile(); // プロフィールが存在しない場合は新しいプロフィールを作成
+     $profile->user_id = $user->id;
         $profile->gender = $gender;
         $profile->old = $old;
         $profile->comment = $comment;
@@ -130,44 +140,55 @@ class PostController extends Controller
 
     public function profile1(Profile $profile){
         $user = Auth::user();
+        
+        if(!$user->profile){
+            return view('/posts.profile_create');
+        }
+        
         $profile=$user->profile;
         
-    Carbon::setLocale('ja');
-    $currentDateTime = Carbon::now(); 
-
-    if (!$user) {
-        return response()->json(['errors' => 'User is not authenticated']);
-    }
-
-    $matchingCategories = $user->categories()
-        ->whereDate('created_at', '=', $currentDateTime->toDateString())
-        ->get();
-
-    $records = $user->records()->orderBy('created_at', 'desc')->get();
-
-    if ($matchingCategories->isEmpty()) {
-        return response()->json(['error' => 'No matching category found']);
-    }
-
-    $categoryTotal = [];
-    $totalTime = 0;
-
-    foreach ($matchingCategories as $category) {
-        $categoryName = $category->name;
-        $categoryTime = $category->workTime;
-
-        if (!isset($categoryTotal[$categoryName])) {
-            $categoryTotal[$categoryName] = 0;
+        Carbon::setLocale('ja');
+        $currentDateTime = Carbon::now(); 
+        
+        
+        $matchingCategories = $user->categories()
+            ->whereDate('created_at', '=', $currentDateTime->toDateString())
+            ->get();
+        
+        
+        $records = $user->records()->orderBy('created_at', 'desc')->get();
+    
+        if ($matchingCategories->isEmpty()) {
+            //return response()->json(['error' => 'No matching category found']);
+            $categoryTotal = [];
+            //dd($records);
+            return view('posts.profile1', compact('user','records','profile','categoryTotal'));
         }
+    
+        $categoryTotal = [];
+        $totalTime = 0;
 
-        $categoryTotal[$categoryName] += $categoryTime;
-        $totalTime += $categoryTime;
+        foreach ($matchingCategories as $category) {
+            $categoryName = $category->name;
+            $categoryTime = $category->workTime;
+    
+            if (!isset($categoryTotal[$categoryName])) {
+                $categoryTotal[$categoryName] = 0;
+            }
+    
+            $categoryTotal[$categoryName] += $categoryTime;
+            $totalTime += $categoryTime;
     }
         return view('posts.profile1', compact('user','records','categoryTotal','totalTime','profile'));
     }
     public function recordset(Category $category){
         return view('posts.record_set')->with(['category'=>$category]);
     }
+    
+    public function showRegisrationForm(){
+        return view('posts.register');
+    }
+    
     public function storerecord( Category $category,PostRequest $request){
         $user_id = auth()->user()->id;
         $category->user_id = $user_id; 
@@ -252,6 +273,11 @@ class PostController extends Controller
 
         return view('posts.today',compact('categoryTotal', 'totalTime'));    
     }
+    
+    
+    public function webtop(){
+        return view('posts.webtop');
+    }
 
     public function week()
 {
@@ -268,6 +294,7 @@ class PostController extends Controller
         ->get();
 
     $records = $user->records()->orderBy('created_at', 'desc')->get();
+
 
     if ($matchingCategories->isEmpty()) {
         return response()->json(['error' => 'No matching category found']);

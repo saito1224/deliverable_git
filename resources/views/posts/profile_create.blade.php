@@ -35,6 +35,11 @@
                 <input type="text" name="old" placeholder="年齢">
                 <input type="text" name="comment" placeholder="ひとこと">
             </div>
+                    @if (session('error'))
+            <div class="alert alert-danger">
+                {{ session('error') }}
+            </div>
+        @endif
 
            　　　<input type="submit" value="編集確定">
         </form>

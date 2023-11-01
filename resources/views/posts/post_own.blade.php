@@ -7,7 +7,9 @@
     <body>
             @section('content')
             <h1>今までの記録</h1>
-            @if(isset($categoryTotal))
+            @if($user->categories->isEmpty())
+                    <p>記録がありません</p>
+            @endif
             @foreach($categoryTotal as $categoryName=>$categoryTime)
                 <div class='categorytotal'>
                     <p class='name'>カテゴリ名：{{$categoryName}}</p>
@@ -22,9 +24,7 @@
                 @endif
             @endforeach
             
-            @else
-                <p class='noRecords'>記録がありません</p>
-            @endif
+           
             <a href="{{ route('profile1') }}">戻る</a>
        @endsection
         

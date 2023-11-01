@@ -18,3 +18,11 @@ DB_PASSWORD=123456789adgjmptw,
 
 mysql://dbuser:123456789adgjmptw,@127.0.0.1:3306/deliverable
 postgres://[ユーザ名]:[パスワード]@[ホスト]:5432/[DB名]
+
+
+DB_CONNECTION=pgsql
+DB_PORT=5432
+DB_HOST=ec2-44-213-151-75.compute-1.amazonaws.com
+DB_DATABASE=dddht2s1bmv2ni
+DB_USERNAME=wjqkubkrxyayay
+DB_PASSWORD=c31d09e51bfe9f6244060a8a33a7f47d4fb3819273f6c6a1d37a6f191b6c7937

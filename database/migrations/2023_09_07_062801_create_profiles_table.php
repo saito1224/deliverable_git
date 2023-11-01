@@ -15,8 +15,8 @@ return new class extends Migration
     {
         Schema::create('profiles', function (Blueprint $table) {
             $table->id();
-            $table->string('gender',10);
-            $table->string('old');
+            $table->string('gender',10)->nullable();
+            $table->string('old')->nullable();
             $table->text('comment')->nullable();
             $table->timestamps();
         });

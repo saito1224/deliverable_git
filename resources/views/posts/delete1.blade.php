@@ -38,7 +38,7 @@
         </script>
        </div>
         <div class="footer">
-                <a href="/">戻る</a>
+                <a href="/front">戻る</a>
         </div>
         @endsection
     </body>

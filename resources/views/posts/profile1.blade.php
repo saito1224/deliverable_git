@@ -13,9 +13,6 @@
     <body class="custom-background">
             <div class="header">
             <div class="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex">
-                    <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
-                        {{ __('Dashboard') }}
-                    </x-nav-link>
                     <x-nav-link :href="route('front')" :active="request()->routeIs('front')">
                         {{ __('トップ') }}
                     </x-nav-link>
@@ -25,6 +22,7 @@
                     <x-nav-link :href="route('recordset')" :active="request()->routeIs('precordset')">
                         {{ __('記録する') }}
                     </x-nav-link>
+                    
             </div>
             </div>
         <h1>編集画面</h1>    
@@ -38,6 +36,7 @@
         <p class='old'>年齢：{{$profile->old}}</p>
         <p class='comment'>ひとこと：{{$profile->comment}}</p>
         </div>
+        
         <h2 class='link'>    
         <a href="/postown">自分の投稿を確認する</a>
         <a href="/postothers">他人の投稿を確認する</a>
@@ -48,20 +47,25 @@
         @endif
         
         
-        
-        <h2>今までの記録・グラフ</h2>
+        <!-- <h2>今までの記録・グラフ</h2>
         <script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script>
-        @if($records && $categoryTotal)
+        @if($records->isNotEmpty())
         <canvas id='week'></canvas>
-        <canvas id='today'></canvas>
-        @elseif(isset($categorytotal))
-        <canvas id='today'></canvas>
+        @elseif($user->categories->isEmpty())
+        <p>グラフを表示するための記録がありません</p>
         @else
-            <h1>グラフを表示するための記録がありません</h1>
-        @endif
+        <p>記録がありません</p>
+        @endif-->
         
         <h2>今日の記録</h2>
-        @if(isset($categoryTotal) && !empty($categoryTotal))
+        @if($user->categories->isEmpty())
+            <p>記録がありません</p>
+        @endif
+        @if($categoryTotal == null)
+        <p>今日の記録はありません</p>
+        @elseif($categoryTotal != null)
+        <!--<canvas id='today'></canvas>-->
+        
         @foreach($categoryTotal as $categoryName => $categoryTime)
             <div class='categorytotal'>
                 <p class='name'>カテゴリ名：{{ $categoryName }}</p>
@@ -69,10 +73,11 @@
             </div>    
         @endforeach
         @else
-        <h3>記録がありません</h3>
+            <p>今日の記録がありません</p>
         @endif
+     
         <div class="footer">        
-            <a href="/">戻る</a>
+            <a href="{{ route('front') }}">戻る</a>
         </div>
         
     </body>
@@ -125,25 +130,26 @@
         }
     });
 
-
-
-    var ctx = document.getElementById("week");
+    document.addEventListener("DOMContentLoaded", function () {
+     var ctx = document.getElementById("week");
       <?php
         $totalTimes = [];
         $limit = 7;
         $count = 0;
         $days = [];
         
-        foreach($records as $record) {
-            $totalTimes[] = $record->total_time;
-            $days[] = $record->created_at->toDateString();
-            $count++;
-            if ($count > $limit) {
-                break;
+        for ($i = 0; $i < $limit; $i++) {
+            if (isset($records[$i])) {
+                $record = $records[$i];
+                $totalTimes[] = $record->total_time;
+                $days[] = $record->created_at->toDateString();
+            } else {
+                break; // もし要素が足りない場合にループから抜ける
             }
         }
     
         $totalTimeString = "['" . implode("', '", $totalTimes) . "']";
+        
         
         ?>
 
@@ -178,5 +184,7 @@
                     }
                 }
             });
+            });
+
         </script>
         </html>

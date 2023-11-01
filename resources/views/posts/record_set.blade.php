@@ -24,7 +24,7 @@
         </form>
         <a href= "/delete1">投稿削除</a>
         <div class="footer">
-            <a href="/">戻る</a>
+            <a href="/front">戻る</a>
         </div>
     </body>
         @endsection

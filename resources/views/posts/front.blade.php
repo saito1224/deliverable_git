@@ -34,7 +34,14 @@
             <p>：プロフィールをまだ作成していない方はこちらへ。</p>
             <p>：今までの記録や他の人の記録を参照できます</p><br><br>
             <a href= "/delete1">記録削除</a>
-            <p>：記録を削除できます</p><br><br>
+            <p>：記録を削除できます</p>
+            <form method="POST" action="{{ route('logout') }}">
+                @csrf
+                <x-nav-link :href="route('logout')" :active="request()->routeIs('logput')" onclick="event.preventDefault(); this.closest('form').submit();">
+                    {{ __('ログアウト') }}
+                </x-nav-link>
+            </form>
+            <a href="/week">week</a>
             <!--<a href="/week">post</a>-->
         </p>
         @endsection
